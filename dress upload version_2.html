@@ -1,0 +1,109 @@
+<!DOCTYPE html> 
+<html> 
+
+<head> 
+    <script src="SimpleImage.js"></script> 
+    
+    <style> 
+        canvas { 
+            background: lightgray; 
+            border: 1px solid black; 
+            width: 450px; 
+            height: 300px; 
+            margin: 30px; 
+        } 
+    </style> 
+</head> 
+
+<body> 
+
+    <h1>Dress Design</h1> 
+
+    <canvas id="pic1"></canvas> 
+    <canvas id="pic2"></canvas> 
+    <br /> 
+
+    
+    <p> 
+        Background Image: <input type="file"
+        id="bgFile" multiple="false"
+        onchange="backimg()"> 
+    </p> 
+    
+    <input type="button" value="Merge Image"
+        onclick="merge()"> 
+  <script>
+        var imgFG = null;
+
+        function initForwardImage() {
+            var img = new Image();
+            img.onload = function() {
+                console.log("Forward image initialized:", img.width, "x", img.height);
+                // Once the image is loaded, create a SimpleImage
+                imgFG = new SimpleImage(img);
+                // Use imgFG here (e.g., draw it on a canvas)
+            };
+            img.onerror = function() {
+                console.error("Error loading forward image:", img.src);
+            };
+            img.src = "https://i.imgur.com/zfkSWkU.png"; // Replace with the correct path to your image file
+        }
+    </script>
+<script>
+        // Call the function to initialize the forward image
+        initForwardImage();
+    </script>
+    <script type="text/javascript"> 
+        
+        var imgBG = null; 
+
+        // This function initializes the forward image with the predefined image
+        //function initForwardImage() { 
+          //  var canvas = document.getElementById("pic1"); 
+            //imgFG = new SimpleImage("try-1.png", function() {
+              //  this.drawTo(canvas); 
+                //console.log("Forward image initialized:", imgFG.getWidth(), "x", imgFG.getHeight());
+            //}); 
+        //} 
+
+        // Call the function to initialize the forward image when the page loads
+        window.onload = initForwardImage;
+
+        // This function takes background image as input 
+      function backimg() { 
+			var fileInput = document.getElementById("bgFile"); 
+			var canvas = document.getElementById("pic2"); 
+			imgBG = new SimpleImage(fileInput); 
+			imgBG.drawTo(canvas); 
+        } 
+
+        // This function merges both the image and 
+        // produces the resultant image as output 
+        // Implementation of Green Screen Algorithm 
+        function merge() { 
+            if (!imgFG || !imgBG) {
+                console.error("Forward or background image not loaded.");
+                return;
+            }
+
+            var pic1 = document.getElementById("pic1"); 
+            var outputImage = new SimpleImage(imgFG.getWidth(), imgFG.getHeight()); 
+
+            for (var pixel of imgFG.values()) { 
+                if (pixel.getGreen() > pixel.getRed() + pixel.getBlue()) { 
+                    var x = pixel.getX(); 
+                    var y = pixel.getY(); 
+                    var newPixel = imgBG.getPixel(x, y); 
+                    outputImage.setPixel(x, y, newPixel); 
+                } 
+                else { 
+                    outputImage.setPixel(pixel.getX(), pixel.getY(), pixel); 
+                } 
+            } 
+            outputImage.drawTo(pic1); 
+            console.log("Images merged successfully.");
+        } 
+    </script>
+</body> 
+
+</html>
